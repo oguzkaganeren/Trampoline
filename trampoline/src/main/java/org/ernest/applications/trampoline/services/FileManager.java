@@ -141,6 +141,8 @@ public class FileManager {
 					commands = commands.replace("#mavenBinaryLocation", mavenBinaryLocation);
 					commands = commands.replace("#mavenHomeLocation", mavenHomeLocation);
 					commands = commands.replace("#vmArguments", vmArguments);
+				}else if (microservice.getBuildTool().equals(BuildTools.JAR)) {
+					commands = commands.replace("#vmArguments", vmArguments);
 				}else{
 					commands = commands.replace("#vmArguments", VMParser.toWindowsEnviromentVariables(vmArguments));
 				}
@@ -150,7 +152,11 @@ public class FileManager {
 				if(microservice.getBuildTool().equals(BuildTools.MAVEN)){
 					mavenBinaryLocation = (mavenBinaryLocation != null && mavenBinaryLocation.trim().length() > 0) ? mavenBinaryLocation : mavenHomeLocation + "/bin";
 					new ProcessBuilder("sh", getSettingsFolder() + "/" + microservice.getId() + ".sh", mavenHomeLocation, mavenBinaryLocation, port, vmArguments).start();
-				}else{
+				}else if (microservice.getBuildTool().equals(BuildTools.JAR)) {
+					log.info("Starting jar with : {} serviceId: {} , port: {}, vmArgs: {}" , getSettingsFolder() , microservice.getId() + ".sh", port, VMParser.toUnixEnviromentVariables(vmArguments));
+					log.info("Run: {}", ScriptContentsProvider.getJar(microservice.getPomLocation()));
+					new ProcessBuilder("sh", getSettingsFolder() + "/" + microservice.getId() + ".sh", port, vmArguments).start();
+				} else{
 					Runtime.getRuntime().exec("chmod 777 "+microservice.getPomLocation()+"//gradlew");
 					new ProcessBuilder("sh", getSettingsFolder() + "/" + microservice.getId() + ".sh", port, VMParser.toUnixEnviromentVariables(vmArguments)).start();
 				}
@@ -170,6 +176,9 @@ public class FileManager {
 
 				if(microservice.getBuildTool().equals(BuildTools.MAVEN)) {
 					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".txt"), ScriptContentsProvider.getMavenWindows(microservice.getPomLocation()));
+				}else if (microservice.getBuildTool().equals(BuildTools.JAR)) {
+					log.info("Run: {}", ScriptContentsProvider.getJar(microservice.getPomLocation()));
+					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".txt"), ScriptContentsProvider.getJar(microservice.getPomLocation()));
 				}else{
 					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".txt"), ScriptContentsProvider.getGradleWindows(microservice.getPomLocation()));
 				}
@@ -178,7 +187,10 @@ public class FileManager {
 
 				if(microservice.getBuildTool().equals(BuildTools.MAVEN)) {
 					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".sh"),ScriptContentsProvider.getMavenUnix(microservice.getPomLocation()));
-				}else{
+				}else if (microservice.getBuildTool().equals(BuildTools.JAR)) {
+					log.info("Run: {}", ScriptContentsProvider.getJar(microservice.getPomLocation()));
+					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".sh"), ScriptContentsProvider.getJar(microservice.getPomLocation()));
+				} else{
 					FileUtils.writeStringToFile(new File(getSettingsFolder() + "/" + microservice.getId() + ".sh"), ScriptContentsProvider.getGradleUnix(microservice.getPomLocation()));
 				}
 			}

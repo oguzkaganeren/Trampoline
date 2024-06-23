@@ -10,7 +10,10 @@ public class ScriptContentsProvider {
     public static String getGradleWindows(String pomLocation){
         return "SET SERVER_PORT=#port&& SET ENDPOINTS_SHUTDOWN_ENABLED=true&& SET MANAGEMENT_SECURITY_ENABLED=false&& SET MANAGEMENT_INFO_GIT_MODE=full&& SET MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*&& SET MANAGEMENT_ENDPOINT_SHUTDOWN_ENABLED=true #vmArguments&& cd "+pomLocation+" && gradlew.bat bootRun ";
     }
-
+    public static String getJar(String jarLocation){
+        return "java -Dserver.port=$1 "
+                + "-Dendpoints.shutdown.enabled=true -Dmanagement.security.enabled=false -Dmanagement.info.git.mode=full -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoint.shutdown.enabled=true -jar \""+jarLocation+"\" $2";
+    }
     public static String getMavenUnix(String pomLocation){
         return "export M2_HOME=$1; export PATH=$PATH:$2; cd " + pomLocation + "; mvn spring-boot:run -Dserver.port=$3 -Dendpoints.shutdown.enabled=true -Dmanagement.security.enabled=false -Dmanagement.info.git.mode=full -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoint.shutdown.enabled=true $4";
     }
